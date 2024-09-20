@@ -74,4 +74,4 @@ def send(msg: str, messages: list[str] | None = None):
     )  # And clear the input field via an OOB swap
 
 
-serve(host="0.0.0.0", port=8000)
+serve(host="0.0.0.0", port=8080)
