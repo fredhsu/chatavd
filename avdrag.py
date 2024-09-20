@@ -1,8 +1,14 @@
+import os
+
+from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_chroma import Chroma
+
+# from langchain_chroma import Chroma
+from langchain_qdrant import QdrantVectorStore
 from langchain import hub
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough, RunnableParallel
+from qdrant_client import QdrantClient
 
 
 def format_docs(docs):
@@ -10,10 +16,21 @@ def format_docs(docs):
 
 
 def get_response(query: str):
+    load_dotenv()
     model = "gpt-4o-mini"
     llm = ChatOpenAI(model=model, temperature=0)
     embeddings = OpenAIEmbeddings()
-    vectorstore = Chroma(persist_directory="db", embedding_function=embeddings)
+
+    url = "d66c427c-49d7-4a20-a09c-eff49a047f43.europe-west3-0.gcp.cloud.qdrant.io"
+    api_key = os.environ["QDRANT_API_KEY"]
+
+    collection_name = "dc1"
+    client = QdrantClient(url=url, api_key=api_key)
+    vectorstore = QdrantVectorStore(
+        client=client, collection_name=collection_name, embedding=embeddings
+    )
+
+    # vectorstore = Chroma(persist_directory="db", embedding_function=embeddings)
 
     prompt = hub.pull("rlm/rag-prompt")
 
