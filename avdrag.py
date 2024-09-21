@@ -30,8 +30,6 @@ def get_response(query: str):
         client=client, collection_name=collection_name, embedding=embeddings
     )
 
-    # vectorstore = Chroma(persist_directory="db", embedding_function=embeddings)
-
     prompt = hub.pull("rlm/rag-prompt")
 
     answer = prompt | llm | StrOutputParser()
