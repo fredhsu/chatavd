@@ -19,6 +19,7 @@ from fasthtml.common import (
     H1,
     H2,
     fast_app,
+    threaded,
 )
 import avdrag
 
@@ -38,11 +39,27 @@ hdrs = (
 
 app, rt = fast_app(pico=True, hdrs=hdrs)
 
+messages = []
 
-def ChatMessage(msg, user):
-    hdr = "User: " if user else "Bot: "
 
-    return Article(Header(hdr), msg)
+def ChatMessage(msg_idx):
+    msg = messages[msg_idx]
+    text = "..." if msg["content"] == "" else msg["content"]
+    hdr = "User: " if msg["role"] == "user" else "Bot: "
+    generating = "generating" in messages[msg_idx] and messages[msg_idx]["generating"]
+    stream_args = {
+        "hx_trigger": "every 0.1s",
+        "hx_swap": "outerHTML",
+        "hx_get": f"/chat_message/{msg_idx}",
+    }
+
+    return Article(
+        Header(hdr),
+        text,
+        id=f"chat-message-{msg_idx}",
+        cls="prose",
+        **stream_args if generating else {},
+    )
     # bubble_class = "chat-bubble-primary" if user else "chat-bubble-secondary"
     # chat_class = "chat-end" if user else "chat-start"
     # return Div(cls=f"chat {chat_class}")(
@@ -63,6 +80,13 @@ def ChatInput():
     )
 
 
+@app.get("/chat_message/{msg_idx}")
+def get_chat_message(msg_idx: int):
+    if msg_idx >= len(messages):
+        return ""
+    return ChatMessage(msg_idx)
+
+
 @app.get("/")  # pyright: ignore
 def home():
     # insert some sample queries here
@@ -77,26 +101,40 @@ def home():
         # cls="card bg-primary text-primary-content",
         cls="grid",
     )
-    form = Form(hx_post=send, hx_target="#chatlist", hx_swap="beforeend")(
-        Div(id="chatlist", cls="chat-box h-[73vh] overflow-y-auto"),
+    chat_messages = Div(
+        *[ChatMessage(i) for i in range(len(messages))],
+        id="chatlist",
+        cls="chat-box h-[73vh] overflow-y-auto",
+    )
+    form = Form(hx_post="/", hx_target="#chatlist", hx_swap="beforeend")(
         Group(
             ChatInput(),
             Button("Send"),
             # cls="flex, space-x-2, mt-2",
         ),
     )
-    page = Div(chat_header, sample_chats, form, cls="max-w-6xl mx-auto")
+    page = Div(chat_header, sample_chats, chat_messages, form, cls="max-w-6xl mx-auto")
     # add the json output here as a box that can be replaced and hidden
     return Body(Div(page, cls="container mx-auto p-4", role="main"))
 
 
-@app.post  # pyright: ignore
-def send(msg: str, messages: list[str] | None = None):
-    if not messages:
-        messages = []
-    messages.append(msg.rstrip())
+# run chat model in a different thread
+@threaded
+def get_response(r, idx):
+    for chunk in r:
+        print(chunk["answer"])
+        messages[idx]["content"] += chunk["answer"]
+    messages[idx]["generating"] = False
+
+
+@app.post("/")
+def post(msg: str):
+    idx = len(messages)
+    messages.append({"role": "user", "content": msg.rstrip()})
     # get response from chat model
+    messages.append({"role": "assistant", "generating": True, "content": ""})
     response = avdrag.get_response(msg)
+    get_response(response, idx + 1)
     # response_text = response["answer"]
     # context_json = json.loads(response["context"])
     # could grab the hostname of the context and use that to lookup the config file
@@ -104,13 +142,13 @@ def send(msg: str, messages: list[str] | None = None):
     # hostname = context_json["hostname"]
     # print(hostname)
     #
-    print("\n\nSending response")
-    print(response)
+    # print("\n\nSending response")
+    # print(response)
 
     return (
-        ChatMessage(msg, True),  # The user's message
-        ChatMessage(response.rstrip(), False),  # The chatbot's response
-        # ChatInput(),
+        ChatMessage(idx),  # The user's message
+        ChatMessage(idx + 1),  # The chatbot's response
+        ChatInput(),
     )  # And clear the input field via an OOB swap
 
 

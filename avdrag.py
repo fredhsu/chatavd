@@ -77,15 +77,15 @@ def get_response(query: str):
         )
         # .assign(context=format)
         .assign(answer=answer)
+        .pick(["answer"])
         # .pick(["answer", "context"])
     )
-    response = chain.invoke(query)
-    # print(response)
-    # print(response["context"])
-    context_json = json.loads(response["context"])
-    # response_text = response["answer"]
-    for config in context_json:
-        print(config["hostname"])
+    return chain.stream(query)
 
-    return response["answer"]
-    # return "foo"
+    # previous for non streaming
+    # response = chain.invoke(query)
+    # context_json = json.loads(response["context"])
+    # for config in context_json:
+    #     print(config["hostname"])
+    #
+    # return response["answer"]
