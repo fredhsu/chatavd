@@ -4,6 +4,9 @@ import json
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
+
 # from langchain_chroma import Chroma
 from langchain_qdrant import QdrantVectorStore
 from langchain import hub
@@ -47,16 +50,19 @@ def get_response(query: str):
 
     prompt = hub.pull("rlm/rag-prompt")
     # chat prompt template human
-    # prompt = ChatPromptTemplate.from_messages(
-    #     [
-    #         SystemMessage(
-    #             content="You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Keep the answer concise. Respond in JSON format.\
-    # Question: {question} \
-    # Context: {context} \
-    # Answer:"
-    #         )
-    #     ]
-    # )
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "human",
+                "You are an assistant for question-answering tasks and a computer networking expert of CCIE level. \
+                Use the following pieces of retrieved context to answer the question. If you don't know the answer, \
+                just say that you don't know. Keep the answer concise. \
+    Question: {question} \
+    Context: {context} \
+    Answer:",
+            )
+        ]
+    )
 
     # answer = prompt | llm | JsonOutputParser()
     answer = prompt | llm | StrOutputParser()
