@@ -1,3 +1,4 @@
+import json
 from fasthtml.common import (
     Article,
     Body,
@@ -96,11 +97,20 @@ def send(msg: str, messages: list[str] | None = None):
     messages.append(msg.rstrip())
     # get response from chat model
     response = avdrag.get_response(msg)
-    response_text = response["answer"]
+    # response_text = response["answer"]
+    # context_json = json.loads(response["context"])
+    # could grab the hostname of the context and use that to lookup the config file
+
+    # hostname = context_json["hostname"]
+    # print(hostname)
+    #
+    print("\n\nSending response")
+    print(response)
+
     return (
         ChatMessage(msg, True),  # The user's message
-        ChatMessage(response_text.rstrip(), False),  # The chatbot's response
-        ChatInput(),
+        ChatMessage(response.rstrip(), False),  # The chatbot's response
+        # ChatInput(),
     )  # And clear the input field via an OOB swap
 
 
