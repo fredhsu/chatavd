@@ -1559,6 +1559,31 @@ pydantic = [
 requests = ">=2,<3"
 
 [[package]]
+name = "libsql-experimental"
+version = "0.0.40"
+description = ""
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "libsql_experimental-0.0.40-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:a625f46a4d822323321eb849efa0bc5508793da16ad13829c878371dfc6429a2"},
+    {file = "libsql_experimental-0.0.40-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:31c11f552aa56f113dd95cf085b627f13ab96ddc3f27270886d21471fd5babb3"},
+    {file = "libsql_experimental-0.0.40-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5949412af433eb653522f8a9f98ea891b7dce4ea626d6bb29f7a26c9d21cb21c"},
+    {file = "libsql_experimental-0.0.40-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:99aa4205c6878d8267bbf612f105d7de6b5a9c8cb23494b431663b1eeb3021e0"},
+    {file = "libsql_experimental-0.0.40-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1db67d4023361c7454ee3be45fd80d64b1df0adbf2982c9927b717c62e2bec60"},
+    {file = "libsql_experimental-0.0.40-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d18586b6a7bd292d7f0a267c22022a3c2836f9d2578dfda5f9073d2996d52c03"},
+    {file = "libsql_experimental-0.0.40-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:933bbb14c002f06a06c32f25c7e7b55abb814258feb90f54a2f426266104bfab"},
+    {file = "libsql_experimental-0.0.40-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:59ade53bf09bbd98162075dec86d1e06148ceece450a7d58895657ff4211b9e0"},
+    {file = "libsql_experimental-0.0.40-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b08d1cc0c053e41028da300ec140191e4e71360e09cb7e2157a9650425da0775"},
+    {file = "libsql_experimental-0.0.40-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5fc93d30fb7f2cba3bb189cad6b7f919f713518feca2f600c1603ba9fd907cf7"},
+    {file = "libsql_experimental-0.0.40-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:995c9ade190a6dd88087a69f4465535b5251b04395c18c93dfc0f3543e4e90a7"},
+    {file = "libsql_experimental-0.0.40-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:4f31b8a5be004bf66c076d9d07ffeee0c4981fc6c474d8c170914d2255817fab"},
+    {file = "libsql_experimental-0.0.40-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d800855835c41b81a439b7ace5f74dfd2122494ae5a523dd0f01e23fb8d19012"},
+    {file = "libsql_experimental-0.0.40-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:edb73e6d48aa19daabc30285604ef9f2ce0267a9450a5c6432ac868beb955254"},
+    {file = "libsql_experimental-0.0.40-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:eb1157b6575e81ca0e27b1eecd9f5deabcb2e297eb4005ce06c93ff70b075e14"},
+    {file = "libsql_experimental-0.0.40.tar.gz", hash = "sha256:9e68941ddb2e353c3fc7b162cbfb27b24cb14f1a44f7e8f22517c987a891ab01"},
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -3771,4 +3796,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "236b6be77ed6b7950cf07b44ad44424c76a63f3e5c67ef4ce6fc179b4b95343b"
+content-hash = "96ecc2c49747fb80e7a29bdb4f2823104c593f4bd890105085cb99b8bd6f2fdd"

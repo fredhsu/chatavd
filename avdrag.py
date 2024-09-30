@@ -77,8 +77,8 @@ def get_response(query: str):
         )
         # .assign(context=format)
         .assign(answer=answer)
-        .pick(["answer"])
-        # .pick(["answer", "context"])
+        # .pick(["answer"])
+        .pick(["answer", "context"])
     )
     return chain.stream(query)
 

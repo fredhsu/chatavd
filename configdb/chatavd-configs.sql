@@ -1,0 +1,5 @@
+CREATE TABLE configs (
+  ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  hostname TEXT,
+  config TEXT
+);
