@@ -201,16 +201,7 @@ def home():
     dialog = Dialog(Article(Header(), P("hello")))
     modals = Div(id="modals-here", cls="modal modal-blur")
     sample_chats = Section(
-        Article(
-            P(sample_chat_prompts[0]),
-            hx_get="/sample_chat/0",
-            hx_target="#msg-input",
-        ),
-        Article(
-            P(sample_chat_prompts[1]),
-            hx_get="/sample_chat/1",
-            hx_target="#msg-input",
-        ),
+        *[sample_chat_article(i) for i in range(len(sample_chat_prompts))],
         cls="grid",
     )
     chat_messages = Div(
@@ -242,6 +233,14 @@ def home():
 @app.get("/sample_chat/{idx}")
 def sample_chat(idx: int):
     return update_chat_input(sample_chat_prompts[idx])
+
+
+def sample_chat_article(idx: int):
+    return Article(
+        P(sample_chat_prompts[idx]),
+        hx_get=f"/sample_chat/{idx}",
+        hx_target="#msg-input",
+    )
 
 
 def update_chat_input(value):
