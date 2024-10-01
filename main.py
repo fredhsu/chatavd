@@ -4,7 +4,6 @@ from fasthtml.common import (
     Body,
     Pre,
     Footer,
-    Link,
     Header,
     Form,
     Div,
@@ -16,7 +15,11 @@ from fasthtml.common import (
     serve,
     P,
     Code,
+    H1,
     H2,
+    H3,
+    Ul,
+    Li,
     fast_app,
     threaded,
 )
@@ -40,6 +43,11 @@ app, rt = fast_app(pico=True, hdrs=hdrs)
 
 messages = []
 
+sample_chat_prompts = [
+    "How many bgp neighbors does dc1-leaf1a have?",
+    "What VRFs are configured on dc1-leaf2b?",
+]
+
 
 def ChatMessage(msg_idx):
     msg = messages[msg_idx]
@@ -52,10 +60,7 @@ def ChatMessage(msg_idx):
         "hx_get": f"/chat_message/{msg_idx}",
     }
 
-    print(msg)
-    if msg["context"] != "":
-        context = json.loads(msg["context"])
-        print(f"Context has {len(context)} results:\n")
+    # print(msg)
 
     context_button = Button(
         "Switch Config",
@@ -67,11 +72,16 @@ def ChatMessage(msg_idx):
         role="button",
         cls="secondary",
     )
-    footer = (
-        Footer("Click here to see the relevant switch config ")(context_button)
-        if msg["role"] != "user"
-        else None
-    )
+
+    footer = None
+    if msg["context"] != "":
+        context = json.loads(msg["context"])
+        print(f"Context has {len(context)} results:\n")
+        footer = (
+            Footer("Click here to see the relevant switch config ")(context_button)
+            if msg["role"] != "user"
+            else None
+        )
     # context = Button("Context")
     return Article(
         Header(hdr),
@@ -81,20 +91,13 @@ def ChatMessage(msg_idx):
         cls="prose",
         **stream_args if generating else {},
     )
-    # bubble_class = "chat-bubble-primary" if user else "chat-bubble-secondary"
-    # chat_class = "chat-end" if user else "chat-start"
-    # return Div(cls=f"chat {chat_class}")(
-    #     Div("user" if user else "assistant", cls="chat-header"),
-    #     Div(msg, cls=f"chat-bubble {bubble_class}"),
-    #     Hidden(msg, name="messages"),
-    # )
 
 
 def ChatInput():
     return Input(
         name="msg",
         id="msg-input",
-        placeholder="Send a query",
+        value="How many BGP neighbors does dc1-spine1 have?",
         # cls="input input-bordered flex-grow",
         cls="input input-bordered flex-grow mr-2 min-w-0",
         hx_swap_oob="true",
@@ -163,17 +166,51 @@ def get_config(hostname: str):
 @app.get("/")  # pyright: ignore
 def home():
     # insert some sample queries here
-    chat_header = Article(H2("Sample chat prompts to try:"), cls="prose")
+    heading = (
+        H1("ChatAVD"),
+        (
+            P(
+                "Welcome to the ChatAVD demo. This demo uses a RAG system that has been \
+            loaded with the output from generating docs and configs from the AVD \
+            L3LS example. The example consists of:"
+            )(H3("Spines")),
+            (Ul(Li("dc1-spine1f"), Li("dc1-spine2"))),
+            (H3("L3 leaf switches")),
+            (
+                Ul(
+                    Li("dc1-leaf1a"),
+                    Li("dc1-leaf1b"),
+                    Li("dc1-leaf2a"),
+                    Li("dc1-leaf2b"),
+                )
+            ),
+            (H3("L2 leaf switches")),
+            (Ul(Li("dc1-leaf1c"), (Li("dc1-leaf2c")))),
+            (
+                P(
+                    "Asking how many bgp neighbors for the L3 \
+            leaf switches should answer 5, whereas for the L2 should respond with \
+            'I don't know'. There can be hallucinations so you may not get the expected answer. \
+            Once the answer is found, the related switch config can be viewed to confirm the answer. \
+            Due to some bugs the switch configs are not always the most relevant 😊."
+                )
+            ),
+        ),
+    )
+    chat_header = Article(H2("Sample chat prompts (click to try):"), cls="prose")
     dialog = Dialog(Article(Header(), P("hello")))
     modals = Div(id="modals-here", cls="modal modal-blur")
     sample_chats = Section(
-        # Article(H2("Sample chat prompts to try:"), cls="prose"),
-        # Div(P("How many bgp neighbors does dc1-leaf1a have?"), cls="card-body"),
-        Article(P("How many bgp neighbors does dc1-leaf1a have?")),
-        # cls="card bg-primary text-primary-content",
-        # Div(P("What VRFs are configured on dc1-leaf2b?"), cls="card-body"),
-        Article(P("What VRFs are configured on dc1-leaf2b?")),
-        # cls="card bg-primary text-primary-content",
+        Article(
+            P(sample_chat_prompts[0]),
+            hx_get="/sample_chat/0",
+            hx_target="#msg-input",
+        ),
+        Article(
+            P(sample_chat_prompts[1]),
+            hx_get="/sample_chat/1",
+            hx_target="#msg-input",
+        ),
         cls="grid",
     )
     chat_messages = Div(
@@ -189,6 +226,7 @@ def home():
         ),
     )
     page = Div(
+        heading,
         modals,
         chat_header,
         sample_chats,
@@ -199,6 +237,21 @@ def home():
     )
     # add the json output here as a box that can be replaced and hidden
     return Body(Div(page, cls="container mx-auto p-4", role="main"))
+
+
+@app.get("/sample_chat/{idx}")
+def sample_chat(idx: int):
+    return update_chat_input(sample_chat_prompts[idx])
+
+
+def update_chat_input(value):
+    return Input(
+        name="msg",
+        id="msg-input",
+        value=value,
+        cls="input input-bordered flex-grow mr-2 min-w-0",
+        hx_swap_oob="true",
+    )
 
 
 # run chat model in a different thread
